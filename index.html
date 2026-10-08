@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bản Đồ Quyền Lực - Triều Nguyễn Đại Việt</title>
+    <style>
+        :root {
+            --bg-color: #1a1614;
+            --paper-texture: #e3d3b6;
+            --paper-dark: #cbb48b;
+            --text-color: #2b1d16;
+            --accent-red: #8a0b0b;
+            --border-gold: #a67c00;
+            --shadow-deep: rgba(0, 0, 0, 0.7);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Georgia', 'Times New Roman', serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at center, #3a2a22 0%, #110c0a 100%);
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--paper-texture);
+            border: 8px solid transparent;
+            border-image: repeating-linear-gradient(45deg, var(--border-gold), var(--border-gold) 10px, #8b6914 10px, #8b6914 20px) 10;
+            box-shadow: 0 20px 50px var(--shadow-deep);
+            padding: 45px;
+            position: relative;
+            background-image: linear-gradient(rgba(227, 211, 182, 0.9), rgba(227, 211, 182, 0.9)), url('https://www.transparenttextures.com/patterns/rice-paper-2.png');
+        }
+
+        header {
+            border-bottom: 3px double var(--accent-red);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: var(--accent-red);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        #hud-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 1s ease-in-out;
+        }
+
+        .stat-item {
+            background: var(--paper-dark);
+            padding: 8px 15px;
+            border: 1px solid var(--border-gold);
+            border-radius: 3px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+            color: #111;
+        }
+
+        #scene-title {
+            font-size: 24px;
+            color: var(--accent-red);
+            margin-bottom: 20px;
+            font-weight: bold;
+            border-left: 5px solid var(--accent-red);
+            padding-left: 15px;
+            text-transform: uppercase;
+            animation: fadeIn 1s ease-in;
+        }
+
+        #story-text {
+            font-size: 18px;
+            line-height: 1.9;
+            margin-bottom: 35px;
+            white-space: pre-line;
+            text-align: justify;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .dialogue {
+            font-style: italic;
+            color: #5c0a0a;
+            background: rgba(138, 11, 11, 0.05);
+            padding: 15px 20px;
+            border-radius: 2px;
+            border-left: 4px solid var(--accent-red);
+            display: block;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+
+        #choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            animation: fadeIn 1.5s ease-in;
+        }
+
+        .choice-btn {
+            background: linear-gradient(to right, #ece1cd, #dfccaf);
+            border: 1px solid var(--border-gold);
+            border-left: 5px solid var(--border-gold);
+            padding: 16px 25px;
+            text-align: left;
+            font-family: inherit;
+            font-size: 17px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            box-shadow: 2px 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .choice-btn:hover {
+            background: var(--accent-red);
+            color: #fff;
+            border-left: 5px solid #4a0000;
+            transform: translateX(10px);
+            box-shadow: 5px 8px 15px rgba(0,0,0,0.2);
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 13px;
+            color: #555;
+            border-top: 1px dashed var(--border-gold);
+            padding-top: 15px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Character Creation Styles */
+        #creation-screen {
+            text-align: center;
+            padding: 30px 20px;
+            animation: fadeIn 1s ease;
+        }
+
+        .input-group {
+            margin: 25px 0;
+            text-align: left;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--accent-red);
+            font-size: 17px;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            font-size: 17px;
+            border: 2px solid var(--border-gold);
+            background: rgba(255, 255, 255, 0.5);
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--accent-red);
+            background: #fff;
+        }
+        
+        .start-btn {
+            background: var(--accent-red);
+            color: #fff;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            padding: 18px 40px;
+            font-size: 19px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(138, 11, 11, 0.4);
+        }
+
+        .start-btn:hover {
+            background: #5c0a0a;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(138, 11, 11, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <header>
+            <h1>BẢN ĐỒ QUYỀN LỰC</h1>
+            <div id="hud-container" class="hidden">
+                <div class="stat-item">🪙 Ngân Khố: <span id="stat-gold">500</span></div>
+                <div class="stat-item">📜 Uy Quyền: <span id="stat-power">20</span></div>
+                <div class="stat-item">👑 Chức Vụ: <span id="stat-role">Lang Trung</span></div>
+            </div>
+        </header>
+
+        <!-- MÀN HÌNH KHỞI TẠO -->
+        <div id="creation-screen">
+            <h2 style="color: var(--accent-red); font-size: 28px; margin-bottom: 10px;">THIẾT LẬP THÂN THẾ</h2>
+            <p style="font-style: italic; color: #444; font-size: 16px; margin-bottom: 30px;">
+                "Giành thiên hạ đã khó, giữ được đầu mình nằm trên cổ giữa bàn cờ Lục Bộ còn khó hơn vạn lần."
+            </p>
+            
+            <div class="input-group">
+                <label for="player-name">Danh xưng của Đại nhân:</label>
+                <input type="text" id="player-name" placeholder="Ví dụ: Minh Huy, Văn Thành..." value="Minh Huy">
+            </div>
+
+            <div class="input-group">
+                <label for="player-region">Nguồn cội gia tộc (Quyết định lợi thế ngầm):</label>
+                <select id="player-region">
+                    <option value="Quảng Nam">Đất Quảng Nam (Nắm thóp thương cảng, dồi dào tài lực)</option>
+                    <option value="Bắc Hà">Đất Bắc Hà (Cội nguồn Sĩ Phu, giỏi thao túng tai mắt)</option>
+                    <option value="Gia Định">Đất Gia Định (Gốc gác Võ Tướng, hào sảng và thực dụng)</option>
+                </select>
+            </div>
+
+            <button class="start-btn" onclick="startGame()">BƯỚC VÀO TỬ CẤM THÀNH</button>
+        </div>
+
+        <!-- MÀN HÌNH CHƠI GAME CHÍNH -->
+        <div id="game-screen" class="hidden">
+            <div id="scene-title">Khởi tạo...</div>
+            <div id="story-text">Đang tải dữ liệu cung đình...</div>
+            <div id="choices-container"></div>
+        </div>
+
+        <footer>
+            Trải nghiệm Tâm lý chiến Cung Đình • Kịch bản phân nhánh độc quyền
+        </footer>
+    </div>
+
+    <script>
+        let gameState = {
+            playerName: "Minh Huy",
+            region: "Quảng Nam",
+            wifeName: "Trần Thị Thuận",
+            gold: 500,
+            power: 20,
+            role: "Lại Bộ Lang Trung",
+            inventory: [],
+            flags: {
+                spy_votung: false,
+                prince_saved: false,
+                hud_disabled: false
+            }
+        };
+
+        function startGame() {
+            let nameInput = document.getElementById("player-name").value.trim();
+            let regionInput = document.getElementById("player-region").value;
+
+            if (nameInput !== "") {
+                gameState.playerName = nameInput;
+            }
+            gameState.region = regionInput;
+
+            document.getElementById("creation-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("hidden");
+            document.getElementById("hud-container").classList.remove("hidden");
+
+            updateHUD();
+            renderScene("start");
+        }
+
+        function updateHUD() {
+            if (gameState.flags.hud_disabled) {
+                document.getElementById("hud-container").classList.add("fade-out");
+                setTimeout(() => { document.getElementById("hud-container").classList.add("hidden"); }, 1000);
+            } else {
+                document.getElementById("stat-gold").innerText = gameState.gold;
+                document.getElementById("stat-power").innerText = gameState.power;
+                document.getElementById("stat-role").innerText = gameState.role;
+            }
+        }
+
+        function parseText(text) {
+            let parsed = text.replace(/{playerName}/g, gameState.playerName)
+                             .replace(/{wifeName}/g, gameState.wifeName)
+                             .replace(/{region}/g, gameState.region);
+            
+            let wifeDialogue = "";
+            let wifeDesc = "";
+            
+            if (gameState.region === "Quảng Nam") {
+                wifeDesc = "Phu nhân Trần Thị Thuận ôm khư khư cái tay nải đựng vài bộ đồ cũ sờn từ thuở cơ hàn, nước mắt lưng tròng, cất cái giọng Quảng Nam đặc sệt sự xót xa:";
+                wifeDialogue = "'Ông hỉ, binh hỏa ngoài nớ loạn đả lên hết trơn rồi! Nhắm coi bề mô mà liệu, tiền bạc chừ tấp đống cũng như giấy lộn, dọn bề về miết Quảng Nam quê nhà cho yên cái thân đi ông!'";
+            } else if (gameState.region === "Bắc Hà") {
+                wifeDesc = "Phu nhân Trần Thị Thuận tuy tay run lẩy bẩy ôm tay nải, nhưng nét mặt vẫn giữ cái vẻ đài các, sắc sảo của người đàn bà Bắc Hà, cất giọng rành rọt:";
+                wifeDialogue = "'Thầy nó ơi, ngoài kia binh biến ầm ĩ cả lên rồi! Tiền bạc giờ phỏng có ích gì, người ta giết nhau vì cái ngai vàng kia kìa. Hay là nhà mình tìm đường lánh về cội Bắc Hà cho êm chuyện!'";
+            } else if (gameState.region === "Gia Định") {
+                wifeDesc = "Phu nhân Trần Thị Thuận xắn ống tay áo, vơ vội mấy thứ đồ đạc quan trọng nhét vào túi nải. Ánh mắt vằn lên sự cương quyết của con gái miệt vườn:";
+                wifeDialogue = "'Mình ơi, ngoài chong đánh nhau rần rần dòi kìa! Tiền vàng chừ chọi chó chó cũng hổng thèm ngó, lo cái mạng trước đã, dọn lẹ dìa đất Gia Định lánh nạn đi mình!'";
+            }
+            parsed = parsed.replace(/{wifeDialogue}/g, wifeDialogue).replace(/{wifeDesc}/g, wifeDesc);
+            return parsed;
+        }
+
+        const storyData = {
+            "start": {
+                title: "ACT 1: ĐÊM MƯA TỬ CẤM THÀNH",
+                text: "Năm Gia Hưng thứ mười hai, tháng Mười. Mưa rào quất từng chặp xối xả vào mái ngói lưu ly của tẩm cung.\n\nTiên Đế vừa băng hà. Khắp Tử Cấm Thành nặc mùi tử khí quyện với hương trầm cháy khét lẹt. Ngài, Lại Bộ Lang Trung {playerName}, đang quỳ rạp trên tấm thảm dệt kim tuyến lạnh lẽo bên ngoài rèm. Đột nhiên, một cơn gió bấc giật tung cánh cửa. Từ trong chiếc lò sưởi, một cuộn lụa vàng cháy dở lăn lông lốc đến sát gối ngài. Nét ngự bút chu sa dính máu vẫn còn đó: Di chiếu truyền ngôi cho Hoàng trưởng tử!\n\nChưa kịp định thần, một đôi hài thêu mãng xà giẫm mạnh lên vạt áo ngài. Tổng quản thái giám Cao Tấn Lộc cúi gập người, nheo đôi mắt hẹp dài đen ngòm, rít lên bằng chất giọng the thé đặc sệt Bắc Hà:\n\n<span class='dialogue'>'Gớm chửa... Lang Trung đại nhân, thứ ngài đang cầm trên tay, cái mạng quan ngũ phẩm của ngài gánh không nổi đâu. Khôn hồn thì đưa nó cho tạp gia. Bằng không, ngay sáng mai, bãi tha ma ngoài thành sẽ mở tiệc đón cả họ nhà ngài đấy!'</span>",
+                choices: [
+                    { text: "A. (Bạc nén đâm toạc giấy lụa): Bấm bụng, lén giấu Di chiếu vào ống tay áo, đồng thời dúi thỏi vàng 100 lạng vào tay hắn.", next: "act1_scene2" },
+                    { text: "B. (Gắp lửa bỏ tay người): Vờ luống cuống, gạt cuộn Di chiếu rơi thẳng vào chậu than hồng cho cháy rụi không còn dấu vết.", next: "ending_bad1" }
+                ]
+            },
+            "ending_bad1": {
+                title: "GAME OVER: TRO TÀN LỊCH SỬ",
+                text: "Cuộn lụa bốc cháy phừng phừng. Cao Tấn Lộc trợn ngược mắt, hét lên the thé. \nMất đi Di chiếu, mất đi bằng chứng pháp lý duy nhất để định đoạt ngai vàng, Lục Bộ lập tức phân liệt. Đêm hôm đó, Võ Tướng và Sĩ Phu lao vào tàn sát nhau giữa Ngọ Môn.\n\nRiêng ngài, Cao Tấn Lộc lấy cớ 'phá hoại di vật Tiên Đế', ra lệnh cho Cấm Vệ lôi ngài ra ngoài sân gạch chém đầu ngay lập tức. Máu ngài hòa vào làn mưa lạnh buốt của Tử Cấm Thành.",
+                choices: [{ text: "Luân hồi chuyển kiếp (Chơi lại)", action: () => location.reload() }]
+            },
+            "act1_scene2": {
+                title: "ACT 1: QUÀ TẶNG TỪ CỌP DỮ",
+                text: "Cao Tấn Lộc nắn nắn thỏi vàng ròng, cười nhạt rồi lướt đi như một bóng ma. Ngài sống sót qua đêm đẫm máu.\n\nSáng hôm sau, phe Võ Tướng muốn lấy lòng viên quan nắm quyền phân bổ nhân sự ở Bộ Lại là ngài. Đại Đô Đốc Lê Văn Uy sai người mang đến phủ đệ họ Ngô một chiếc rương chứa 50 lạng vàng chóe, kèm theo một tỳ nữ tuyệt sắc tên Thúy Kiều. Tên phó tướng nhếch mép:\n\n<span class='dialogue'>'Đại Đô Đốc thấy {playerName} đại nhân vất vả, ban cho ả nha đầu này, thạo ngón đàn nguyệt để hầu hạ ngài mài mực, giải khuây lúc đêm trường.'</span>",
+                action: () => { gameState.gold -= 100; updateHUD(); },
+                choices: [
+                    { text: "A. (Tham thì thâm): Cười hể hả, nhận rương vàng và đưa tỳ nữ Thúy Kiều vào thư phòng hầu hạ. (+50 Vàng, +10 Uy).", next: "act2_scene1", action: () => { gameState.gold += 50; gameState.power += 10; gameState.flags.spy_votung = true; updateHUD(); } },
+                    { text: "B. (Vững như bàn thạch): Trưng ra nét mặt nghiêm nghị, từ chối tất cả, lấy cớ bản thân đang mang trọng tang Tiên Đế, không màng tửu sắc. (+20 Uy).", next: "act2_scene1", action: () => { gameState.power += 20; updateHUD(); } }
+                ]
+            },
+            "act2_scene1": {
+                title: "ACT 2: KẺ PHẢN TRẮC Ở BỘ HỘ",
+                text: "Bằng những thủ đoạn nhào nặn nhân sự, ngài đã bước lên chức **Thị Lang**. Quyền khuynh một phương.\n\nNhưng đêm nay, ngọn nến trong mật thất hắt hiu gió lùa. Ngài phát hiện chiếc rương gỗ lim bị cạy tung, 300 lạng vàng đã bốc hơi.\nBa tên tâm phúc nhất đang bị trói quỳ gập gối, run lẩy bẩy trước lưỡi gươm sáng loáng của ngài:\n\n1. Trần Công: Kẻ mê cờ bạc khét tiếng, nhưng mồm năm miệng mười thề độc rằng ba hôm nay y bận về quê chịu tang cha, không hề bước ra khỏi cửa.\n2. Lê Tín: Mới đi đưa thư từ phủ Tể Tướng về, gấu áo y dính một vệt bùn đỏ quạch - loại bùn ở xưởng đúc tiền.\n3. Phạm Đăng: Từng lén lút mượn tiền của một tiểu thái giám dưới trướng Cao Tấn Lộc để mua nhân sâm cứu mẹ già.\n\nThời gian không còn nhiều, ngài nghiến răng, kề gươm vào cổ ai?",
+                action: () => { gameState.role = "Thị Lang Bộ Lễ"; updateHUD(); },
+                choices: [
+                    { text: "Chém phập đầu Trần Công (Vì định kiến thói cờ bạc).", next: "act2_scene1_fail" },
+                    { text: "Khứa cổ Lê Tín (Vì vệt bùn đỏ đáng ngờ).", next: "act2_scene1_fail" },
+                    { text: "Đâm xuyên ngực Phạm Đăng (Vì món nợ ân tình với Thái giám).", next: "act2_scene2" }
+                ]
+            },
+            "act2_scene1_fail": {
+                title: "ACT 2: TRÚNG KẾ ĐIỆU HỔ LY SƠN",
+                text: "Máu bắn tung tóe lên mặt ngài. Kẻ bị chém gục xuống, mắt trợn trừng oan khuất.\n\nNgài đã chém sai người. Tên phản bội thực sự chỉ chờ lúc ngài ra tay kết liễu kẻ hàm oan, đã thừa cơ lộn nhào qua cửa sổ, mang theo nốt số vàng còn lại trốn bặt tăm vào màn đêm.\nKế hoạch tích lũy tài lực nhiều năm của ngài sụp đổ. Ngân khố chính thức cạn kiệt về số không!",
+                action: () => { gameState.gold = 0; updateHUD(); },
+                choices: [{ text: "Gạt máu trên mặt, cắn răng bước tiếp...", next: "act2_scene2_poor" }]
+            },
+            "act2_scene2": {
+                title: "ACT 2: HUYẾT THƯ TỪ LÃNH CUNG",
+                text: "Chưa kịp định thần sau vụ mất trộm, một bà vú già rách rưới đột nhập vào phủ. Bà ta dập đầu đến tứa máu, run rẩy rút ra một mảnh lụa trắng viết bằng máu tươi từ Thục Phi - sủng phi của Tiên Đế.\n\n<span class='dialogue'>'Đại nhân... Tiện thiếp đang mang giọt máu của Tiên Đế. Thái Hậu đã mua chuộc ngự y, chén thuốc độc sẽ được bưng đến vào đêm mai. Xin ngài cứu lấy Hoàng tử!'</span>\n\nNgài biết rõ, để qua mặt ngự lâm quân và thuê một chiếc thuyền mành bí mật đưa nàng trốn về {region}, ngài phải dùng tiền đập nát nguyên tắc. Cần chính xác 400 Vàng để mở đường máu.",
+                choices: [
+                    { text: "A. (Tầm nhìn Đế Vương): Dốc 400 Vàng, lệnh cho môn khách lén lút cứu Thục Phi thoát khỏi Tử Cấm Thành.", next: "act3_scene1", condition: () => gameState.gold >= 400, action: () => { gameState.gold -= 400; gameState.flags.prince_saved = true; updateHUD(); } },
+                    { text: "B. (Ngoảnh mặt làm ngơ): Nhốt bà vú lại, đem bức huyết thư dâng lên Thái Hậu để lĩnh thưởng.", next: "act3_scene1" }
+                ]
+            },
+            "act2_scene2_poor": {
+                title: "ACT 2: LỰC BẤT TÒNG TÂM",
+                text: "Một bà vú già rách rưới mang đến bức huyết thư từ Thục Phi. Nàng đang mang thai giọt máu cuối cùng của Tiên Đế, sắp bị Thái Hậu thủ tiêu. Cần 400 Vàng để hối lộ cửa ải.\n\n{playerName} đại nhân nhìn xuống ngân khố trống không của mình. Cơn thịnh nộ và sự hồ đồ khi chém sai người đã tước đi của ngài mọi cơ hội. Không có Vàng, ngài không thể di chuyển dù chỉ là một bóng người ra khỏi cung.\nNgài bất lực nhắm mắt, nghe tiếng khóc nghẹn ngào của bà vú vỡ vụn trong đêm. Thục Phi chắc chắn phải chết.",
+                choices: [
+                    { text: "Đành bóp nát bức thư, giao nộp nó cho phe Hậu Cung để cứu vớt chút quyền lực...", next: "act3_scene1" }
+                ]
+            },
+            "act3_scene1": {
+                title: "ACT 3: TÁCH TRÀ SAU RÈM CHÂU",
+                text: "Sương giăng mờ mịt Tử Cấm Thành. Nửa đêm, ngài bị Cấm vệ quân áp giải thẳng vào cung Diên Thọ.\n\nLưỡng Cung Hoàng Thái Hậu đang ngồi khuất bóng sau bức rèm trân châu, vuốt ve con mèo đen tuyền. Trái với sự ồn ào gươm đao của triều đình, bà ta cất giọng êm ái rặt chất Huế, nhưng từng lời nhả ra đều sắc như mảng chai rạch vào da thịt:\n\n<span class='dialogue'>'{playerName} nì... Mi nghe rõ đây. Lão già Tể Tướng đang xúi bậy đám văn nhân bới móc chuyện của gia tộc Ai gia. Sáng mai thiết triều, mi tự tay thảo tờ sớ vạch tội phản nghịch của lão cho Ai gia. Mần được, thì cái ấn Tể Tướng nớ là của mi. Mần không xong, bãi tha ma Cồn Tùng ngoài tê có sẵn chỗ cho họ nhà mi ra nằm chung rứa hỉ!'</span>",
+                choices: [
+                    { text: "A. (Thuận nước đẩy thuyền): Dập đầu quỳ lạy, thề sẽ chém đầu Tể Tướng để làm nanh vuốt cho Hậu Cung.", next: "act4_start" },
+                    { text: "B. (Lập lờ nước đôi): Mạo hiểm đánh lạc hướng, khuyên Thái Hậu rằng Đại Đô Đốc nắm binh mới là mầm họa lớn nhất.", next: "act4_start" }
+                ]
+            },
+            "act4_start": {
+                title: "ACT 4: CỬ TỬ CỤC (ĐÊM LẬT CỜ)",
+                text: "[HỆ THỐNG CẢNH BÁO: TẮT GIAO DIỆN CHỈ SỐ. TÀI LỰC VÔ NGHĨA. QUYẾT ĐỊNH BẰNG TÂM LÝ].\n\nTiếng đại bác rền vang xé toạc màn đêm! Đại Đô Đốc Lê Văn Uy đã dấy binh làm phản, phá tung cổng thành. Hậu Cung chìm trong biển lửa. Khắp nơi là tiếng gươm đao va chát chúa.\n\n{wifeDesc}\n<span class='dialogue'>{wifeDialogue}</span>\n\nCùng lúc đó, Cao Tấn Lộc lén trườn qua bờ tường, run rẩy đưa tấm Kim Bài Miễn Tử của Thái Hậu dỗ ngài rút 5 khẩu pháo đồng ra cứu giá. \nTừ ngoài cửa, một mũi tên lửa cắm phập vào cột gỗ mang theo huyết thư của Lê Văn Uy:\n<span class='dialogue'>'Qua nói cho chú em {playerName} biết nghen, mở cổng Hữu Môn đón qua vô, qua phong chú làm Tể Tướng Tân Triều mậy!'</span>\n\nBàn cờ đã đi đến nước cuối cùng. Ngài chọn con đường nào?",
+                action: () => { gameState.flags.hud_disabled = true; updateHUD(); },
+                choices: [
+                    { text: "A. (Cứu Cựu Trào): Tin lời Thái Hậu, đem 5 khẩu đại bác ra bảo vệ Hậu Cung đến giọt máu cuối cùng.", next: "ending_bad2" },
+                    { text: "B. (Hàng Tân Vương): Tin lời Lê Văn Uy, hạ lệnh mở cổng Hữu Môn đón Cấm Quân tràn vào.", next: "ending_bad3" },
+                    { text: "C. (Tuyệt Tình Lãnh Huyết): Hất đổ tất cả! Rút gươm chém chết Cao Tấn Lộc. Đợi hai phe cấu xé kiệt quệ, tự mình nã pháo san phẳng Tử Cấm Thành!", next: "ending_check" }
+                ]
+            },
+            "ending_bad2": {
+                title: "GAME OVER: THỎ TỬ CẨU PHANH",
+                text: "Pháo gầm vang, quân phản loạn bị đẩy lùi. Ngài nhuộm máu Cấm Thành cứu giá thành công.\n\nNhưng sáng hôm sau, Thái Hậu êm ái ban cho ngài một chén trà sen. Vừa nhấp môi, lục phủ ngũ tạng ngài đứt đoạn. Trước khi tắt thở, ngài nghe giọng bà ta thì thầm: 'Khanh lập công lớn, nhưng khanh... biết quá nhiều. Kim Bài này, Ai gia xin thu lại rứa hỉ'.",
+                choices: [{ text: "Uất hận luân hồi (Chơi lại)", action: () => location.reload() }]
+            },
+            "ending_bad3": {
+                title: "GAME OVER: VẮT CHANH BỎ VỎ",
+                text: "Cổng Hữu Môn mở toang. Lê Văn Uy cưỡi ngựa chiến tràn vào, chém giết vô số.\n\nNhưng khi ngài bước ra đón hắn, hắn vung đao chém bay đầu ngài. Đầu ngài lăn lông lốc trên sân gạch, đôi mắt vẫn mở to nghe tiếng hắn cười gằn: 'Cái phường chuyên dùng bút mực đâm sau lưng người khác như chú em, qua giữ lại có ngày mất mạng như chơi!'",
+                choices: [{ text: "Ôm hận luân hồi (Chơi lại)", action: () => location.reload() }]
+            },
+            "ending_check": {
+                title: "BÌNH MINH TRÊN ĐẾ CHẾ...",
+                text: "Năm khẩu pháo đồng gầm thét, nã thẳng vào cả phe phản loạn lẫn tẩm cung. Lê Văn Uy bị pháo bắn nát bấy, Thái Hậu hoảng loạn tự ải trong biển lửa.\n\nKhói bụi tan đi, vầng thái dương đỏ rực ngoi lên từ phương Đông. Kinh thành quỳ rạp dưới chân ngài. Ngài là người chiến thắng cuối cùng.\nNhưng, ngài sẽ dùng danh nghĩa gì để danh chính ngôn thuận bước lên đài cao?",
+                action: () => {
+                    let container = document.getElementById("choices-container");
+                    container.innerHTML = "";
+                    
+                    if (gameState.flags.prince_saved) {
+                        let btn = document.createElement("button");
+                        btn.className = "choice-btn";
+                        btn.innerText = "Tung Di chiếu, rước Hoàng Tử đích thực từ " + gameState.region + " về lập Quốc. (TRUE ENDING)";
+                        btn.onclick = () => renderScene("ending_true");
+                        container.appendChild(btn);
+                    }
+                    
+                    let btn2 = document.createElement("button");
+                    btn2.className = "choice-btn";
+                    btn2.innerText = "Tự tay khoác áo Cửu Mãng Bào, lập ra Tân Triều cho riêng mình! (SECRET ENDING)";
+                    btn2.onclick = () => renderScene("ending_secret");
+                    container.appendChild(btn2);
+                },
+                choices: [] 
+            },
+            "ending_true": {
+                title: "TRUE ENDING: QUYỀN THẦN NHIẾP CHÍNH",
+                text: "{playerName} tung tấm Di chiếu dính máu, rước Hoàng tử về lập Tân vương. Cả thiên hạ bừng tỉnh, bá quan văn võ tăm tắp quỳ lạy cúng bái.\n\nNgài không ngồi trên ngai vàng, nhưng ngài là kẻ thao túng toàn bộ Lục Bộ đằng sau bức rèm. Phu nhân {wifeName} được phong Nhất Phẩm Cáo Mệnh. Quyền khuynh thiên hạ, gia tộc hưng thịnh vạn đại, ấy mới là đỉnh cao của thuật trị quốc!",
+                choices: [{ text: "Nhâm nhi chén rượu chiến thắng (Chơi lại)", action: () => location.reload() }]
+            },
+            "ending_secret": {
+                title: "SECRET ENDING: VUA BÓNG TỐI",
+                text: "Trích Đại Việt Sử Ký Toàn Thư:\n\n'Năm Gia Hưng nguyên niên, Tiên triều vận tận. {playerName} thuận thiên ứng mệnh, dấy binh dẹp loạn, quét sạch phản tặc. Trăm quan khóc lóc tôn lên làm Hoàng Đế, lấy quốc hiệu là Đại Hưng...'\n\nNgài đã bước lên đỉnh cao nhất của quyền lực. Xương máu của tất cả những kẻ cản đường đã lát thành bậc thềm cho ngai vàng của ngài. Nhưng ở trên đỉnh cao lạnh lẽo đó, ngài có bao giờ hối hận?",
+                choices: [{ text: "Chìm vào bóng tối quyền lực (Chơi lại)", action: () => location.reload() }]
+            }
+        };
+
+        function renderScene(sceneKey) {
+            let scene = storyData[sceneKey];
+            if (!scene) return;
+
+            if (scene.action) scene.action();
+
+            let titleEl = document.getElementById("scene-title");
+            let textEl = document.getElementById("story-text");
+            let choicesEl = document.getElementById("choices-container");
+            
+            titleEl.style.animation = 'none';
+            textEl.style.animation = 'none';
+            choicesEl.style.animation = 'none';
+            
+            setTimeout(() => {
+                titleEl.innerHTML = parseText(scene.title);
+                textEl.innerHTML = parseText(scene.text);
+                
+                titleEl.style.animation = 'fadeIn 1s ease-in';
+                textEl.style.animation = 'slideUp 0.8s ease-out';
+                choicesEl.style.animation = 'fadeIn 1.5s ease-in';
+            }, 10);
+
+            if(scene.choices && scene.choices.length > 0) {
+                choicesEl.innerHTML = "";
+                scene.choices.forEach(choice => {
+                    if (choice.condition && !choice.condition()) return;
+
+                    let btn = document.createElement("button");
+                    btn.className = "choice-btn";
+                    btn.innerText = parseText(choice.text);
+                    btn.onclick = function() {
+                        if (choice.action) choice.action();
+                        renderScene(choice.next);
+                    };
+                    choicesEl.appendChild(btn);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
